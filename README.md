@@ -1,2 +1,2 @@
 # caffe_tools
-Some python scripts used while using caffe
+Some python scripts I wrote/modified while working with caffe
