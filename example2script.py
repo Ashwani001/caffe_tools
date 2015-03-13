@@ -62,7 +62,6 @@ def looper():
 		centervalue=prediction1[0].argmax()
 		#This boolean will be used in an upcoming loop	
 		centertrue=overtrue=0
-		#overlocation=overname=centername='hi'
 		#This loop helps to search for the match in the database
 		#and stores the folder name as well as the description
 		for j in range(0,999):
