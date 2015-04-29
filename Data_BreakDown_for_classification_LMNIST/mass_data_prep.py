@@ -50,8 +50,9 @@ import os
 import csv
 import numpy as np
 
-def csv_importer(X,sep):
-	Y = np.genfromtxt(X,delimiter=str(sep),dtype=str)
+def csv_importer(filename,sep):
+	filelocation="/home/ash/Desktop/unprocessed_data_set/"+filename+".csv"
+	Y = np.genfromtxt(filelocation,delimiter=str(sep),dtype=str)
 	return Y
 
 def leanify(allData):
@@ -171,7 +172,7 @@ def no_no(Z,filename):
 		else:
 			dataZ[i][4]=Z[i][7]
 
-	filelocation="/home/ash/Desktop/processed_data_set/"+filename+"_final.csv"
+	filelocation="/home/ash/Desktop/processed_data_set/"+filename+"_reference.csv"
 	f = open(filelocation, "w")#Output file name and location	
 	for i in range(0,len(Z)):
 		for j in range(0,4):
@@ -195,7 +196,7 @@ def breaker(Z,desired,filename):
 	clones=secs-desired+1#clones will be the number of files to output
 
 	for x in range(1,clones+1):
-		filelocation="/home/ash/Desktop/processed_data_set/"+filename+"_test_"+str(x)+".csv"
+		filelocation="/home/ash/Desktop/processed_data_set/"+filename+"."+str(x)+".csv"
 		f = open(filelocation, "w")#Output file name and location
 		for u in range(0,10):#10 is number of secs we want...there is a variable for this, change it
 			for y in range(0,len(Z)):#super inefficient...can it be changed? Should start at the new t-second, end when it stops
@@ -209,7 +210,8 @@ def breaker(Z,desired,filename):
 #							End of function declaration										#
 #############################################################################################
 
-a=csv_importer("/home/ash/Desktop/unprocessed_data_set/1.csv",',')
+number=1
+a=csv_importer(str(number),',')
 b=leanify(a)
-c=no_no(b,str(1))
+c=no_no(b,str(number))
 breaker(c,10,str(1))
