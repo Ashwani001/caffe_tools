@@ -16,8 +16,8 @@
 #	Parameters: 
 #		allData - array from previous function
 #	Returns: array of data with variables matched to timestamp 
-#			 follows the format of - timestamp, variable 1,variable 2,variable 3
-#	Purpose: To match variable 2 and 3 to timestamp in column 1
+#			 follows the format of - timestamp, variable 1,variable 2,variable 3,variable 4
+#	Purpose: To match variable 2,3,4 to timestamp in column 1
 #	Comments: -
 #
 ################################################################################################
@@ -55,7 +55,7 @@ def csv_importer(X,sep):
 	return Y
 
 def leanify(allData):
-	i=no_angle=no_speed=no_accel=0#tracks the number of entries for each variable
+	i=no_angle=no_speed=no_accel=no_brake=0#tracks the number of entries for each variable
 
 	for line in allData:# 0,2,4 or 1,3,5 are both fine
 		if(allData[i][0])!='':#as long as it is not empty, increment
@@ -64,17 +64,19 @@ def leanify(allData):
 			no_speed=no_speed+1
 		if(allData[i][4])!='':
 			no_accel=no_accel+1
+		if(allData[i][6])!='':
+			no_brake=no_brake+1
 		i=i+1#i would be the same as variable with highest sampling rate
 	
-	dataX = [[0 for x in range(6)] for x in range(len(allData))] #declaring 2d array
+	dataX = [[0 for x in range(8)] for x in range(len(allData))] #declaring 2d array
 
-	for z in range(0,6):
+	for z in range(0,8):
 		dataX[0][z]=allData[0][z]#copies the first row over, the headings
 
 	for i in range(1,len(dataX)):
 		dataX[i][0]=allData[i][0][:(allData[i][0].find('.'))+3]#Copy over time with 2dp #0 due to assumption stated below
 		dataX[i][1]=allData[i][1]#copy over the first vairable. This is becuase angle has the highest sampling rate
-		dataX[i][2]=dataX[i][3]=dataX[i][4]=dataX[i][5]='NO'
+		dataX[i][2]=dataX[i][3]=dataX[i][4]=dataX[i][5]=dataX[i][6]=dataX[i][7]='NO'
 	
 	#the following part of the code is a little complex
 	#for the data I am using it is not necessary as viables 2 and 3 sampling rate is much lower than variable 1
@@ -104,23 +106,38 @@ def leanify(allData):
 				dataX[j+same_counter][4]=allData[i][4][:dot]
 				dataX[j+same_counter][5]=allData[i][5]		
 				break
+
+	same_counter=0		
+	for i in range(1,no_brake):
+		for j in range(1,no_angle):
+			dot=(allData[i][6].find('.'))+3
+			if(dataX[j][0]==(allData[i][6])[:dot]):
+				if((allData[i][6][:dot])==(allData[i-1][6][:dot])):
+					same_counter=same_counter+1
+				else:
+					same_counter=0
+				dataX[j+same_counter][6]=allData[i][6][:dot]
+				dataX[j+same_counter][7]=allData[i][7]		
+				break
+
 	return dataX
 
 def no_no(Z,filename):
 
-	dataZ = [[0 for x in range(4)] for x in range(len(Z))] #declaring a new 2d array
+	dataZ = [[0 for x in range(5)] for x in range(len(Z))] #declaring a new 2d array
 	for i in range(0,len(dataZ)):
 		dataZ[i][0]=Z[i][0]#copy over time
 		dataZ[i][1]=Z[i][1]#copy over angle
-		dataZ[i][2]=dataZ[i][3]='NO'#chage the other two to NO (can leave as 0 but I found NO easier to read when testing and debugging)
+		dataZ[i][2]=dataZ[i][3]=dataZ[i][4]='NO'#chage the other two to NO (can leave as 0 but I found NO easier to read when testing and debugging)
 
 
 	dataZ[0][2]=Z[0][3]#copy over the headings
 	dataZ[0][3]=Z[0][5]
+	dataZ[0][4]=Z[0][7]
 
 	#the following chunk of code gets the first instance of data for variable 2 and 3 and puts them as the second row
 	#otherwise you might find the titles appearing in the row untilt he first instance of data is reached
-	x2=x3=0 
+	x2=x3=x4=0 
 	for x in range(1,len(Z)):
 		if Z[x][3]=='NO':
 			x2=x2+1
@@ -129,8 +146,13 @@ def no_no(Z,filename):
 		if Z[x][5]=='NO':
 			x3=x3+1
 		else: break
+	for x in range(1,len(Z)):
+		if Z[x][7]=='NO':
+			x4=x4+1
+		else: break
 	dataZ[1][2]=Z[x2+1][3]
 	dataZ[1][3]=Z[x3+1][5]
+	dataZ[1][4]=Z[x4+1][7]
 
 	#the following chunk of code replaces the NOs with the last captured data
 	for i in range(2,len(Z)):#speed
@@ -143,14 +165,19 @@ def no_no(Z,filename):
 			dataZ[i][3]=dataZ[i-1][3]		
 		else:
 			dataZ[i][3]=Z[i][5]
+	for i in range(2,len(Z)):#brake
+		if((Z[i][6])=='NO'):
+			dataZ[i][4]=dataZ[i-1][4]		
+		else:
+			dataZ[i][4]=Z[i][7]
 
 	filelocation="/home/ash/Desktop/processed_data_set/"+filename+"_final.csv"
 	f = open(filelocation, "w")#Output file name and location	
 	for i in range(0,len(Z)):
-		for j in range(0,3):
+		for j in range(0,4):
 			f.write(str(dataZ[i][j]))
 			f.write('\t')
-		f.write((dataZ[i][3])+'\n')
+		f.write((dataZ[i][4])+'\n')
 	f.close()
 
 	return dataZ
@@ -173,7 +200,7 @@ def breaker(Z,desired,filename):
 		for u in range(0,10):#10 is number of secs we want...there is a variable for this, change it
 			for y in range(0,len(Z)):#super inefficient...can it be changed? Should start at the new t-second, end when it stops
 				if(lenz[y]==(x+u)):#checks the t-second (1 to 21)
-					for w in range(0,4):#outputs the four variables
+					for w in range(0,5):#outputs the four variables
 						f.write(str(Z[y][w])+'\t')
 					f.write('\n')
 		f.close()
