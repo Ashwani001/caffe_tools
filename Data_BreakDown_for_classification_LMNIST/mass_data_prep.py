@@ -120,16 +120,6 @@ def leanify(allData):
 				dataX[j+same_counter][6]=allData[i][6][:dot]
 				dataX[j+same_counter][7]=allData[i][7]		
 				break
-	
-	'''
-	filelocation="/home/ash/Desktop/testing.csv"
-	f = open(filelocation, "w")#Output file name and location	
-	for i in range(0,len(dataX)):
-		f.write(str(dataX[i][7]))
-		f.write('\n')
-		#print dataX[i][7]
-	f.close()'''
-
 
 	return dataX
 
@@ -163,7 +153,6 @@ def no_no(Z,filename):
 		else: break
 	dataZ[1][2]=Z[x2+1][3]
 	dataZ[1][3]=Z[x3+1][5]
-	#print x4
 	dataZ[1][4]=Z[x4+1][7]
 
 	#the following chunk of code replaces the NOs with the last captured data
@@ -221,11 +210,11 @@ def breaker(Z,desired,filename):
 #							End of function declaration										#
 #############################################################################################
 
-for i in range(2,16):
+for i in range(1,16):
 	print "preparing set "+str(i)+"..."
 	number=i
 	a=csv_importer(str(number),'\t')
 	b=leanify(a)
 	c=no_no(b,str(number))
-	breaker(c,10,str(1))
+	breaker(c,10,str(number))
 	print "done with set "+str(i)+"!\n"
