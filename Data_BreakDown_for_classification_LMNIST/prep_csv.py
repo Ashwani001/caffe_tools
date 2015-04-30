@@ -48,6 +48,6 @@ def csv_importer(filename,sep):
 #							End of function declaration										#
 #############################################################################################
 
-for x in range(1,5):
+for x in range(1,16):
 	csv_importer(str(x),',')
 

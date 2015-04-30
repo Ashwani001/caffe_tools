@@ -51,7 +51,7 @@ import csv
 import numpy as np
 
 def csv_importer(filename,sep):
-	filelocation="/home/ash/Desktop/unprocessed_data_set/"+filename+".csv"
+	filelocation="/home/ash/Desktop/dataset/"+filename+".csv"
 	Y = np.genfromtxt(filelocation,delimiter=str(sep),dtype=str)
 	return Y
 
@@ -120,6 +120,16 @@ def leanify(allData):
 				dataX[j+same_counter][6]=allData[i][6][:dot]
 				dataX[j+same_counter][7]=allData[i][7]		
 				break
+	
+	'''
+	filelocation="/home/ash/Desktop/testing.csv"
+	f = open(filelocation, "w")#Output file name and location	
+	for i in range(0,len(dataX)):
+		f.write(str(dataX[i][7]))
+		f.write('\n')
+		#print dataX[i][7]
+	f.close()'''
+
 
 	return dataX
 
@@ -153,6 +163,7 @@ def no_no(Z,filename):
 		else: break
 	dataZ[1][2]=Z[x2+1][3]
 	dataZ[1][3]=Z[x3+1][5]
+	#print x4
 	dataZ[1][4]=Z[x4+1][7]
 
 	#the following chunk of code replaces the NOs with the last captured data
@@ -172,7 +183,7 @@ def no_no(Z,filename):
 		else:
 			dataZ[i][4]=Z[i][7]
 
-	filelocation="/home/ash/Desktop/processed_data_set/"+filename+"_reference.csv"
+	filelocation="/home/ash/Desktop/processed_dataset_summary/"+filename+"-reference.csv"
 	f = open(filelocation, "w")#Output file name and location	
 	for i in range(0,len(Z)):
 		for j in range(0,4):
@@ -196,7 +207,7 @@ def breaker(Z,desired,filename):
 	clones=secs-desired+1#clones will be the number of files to output
 
 	for x in range(1,clones+1):
-		filelocation="/home/ash/Desktop/processed_data_set/"+filename+"."+str(x)+".csv"
+		filelocation="/home/ash/Desktop/processed_dataset/"+filename+"."+str(x)+".csv"
 		f = open(filelocation, "w")#Output file name and location
 		for u in range(0,10):#10 is number of secs we want...there is a variable for this, change it
 			for y in range(0,len(Z)):#super inefficient...can it be changed? Should start at the new t-second, end when it stops
@@ -210,8 +221,11 @@ def breaker(Z,desired,filename):
 #							End of function declaration										#
 #############################################################################################
 
-number=1
-a=csv_importer(str(number),',')
-b=leanify(a)
-c=no_no(b,str(number))
-breaker(c,10,str(1))
+for i in range(2,16):
+	print "preparing set "+str(i)+"..."
+	number=i
+	a=csv_importer(str(number),'\t')
+	b=leanify(a)
+	c=no_no(b,str(number))
+	breaker(c,10,str(1))
+	print "done with set "+str(i)+"!\n"
